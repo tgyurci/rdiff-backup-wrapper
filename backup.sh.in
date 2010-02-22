@@ -33,7 +33,7 @@ if [ ! -f "$config" ]; then
 	exit 1
 fi
 
-cmd="$1"
+action="$1"
 shift
 
 # default values
@@ -201,7 +201,7 @@ config() {
 	fi
 }
 
-case "$cmd" in
+case "$action" in
 	backup)
 		backup $@
 	;;
@@ -233,6 +233,6 @@ case "$cmd" in
 		config $@
 	;;
 	*)
-		echo "Nincs ilyen subcommand: $cmd"
+		echo "Nincs ilyen action: $action"
 		exit 1
 esac

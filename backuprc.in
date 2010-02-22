@@ -1,0 +1,14 @@
+suite_dir="~/backup/lib"
+sourcehost="srchost"
+sourceuser="srcuser"
+sourcedir="/source/dir"
+targethost="targethost"
+targetuser="targetuser"
+targetdir="/target/dir"
+max_age="2W"
+compress="NO"
+verbose="5"
+min_size="2"
+max_size="4294967296"
+
+# vim:ft=sh

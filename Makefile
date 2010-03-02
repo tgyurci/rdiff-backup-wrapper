@@ -1,9 +1,17 @@
 prefix=/usr/local
+sed=/usr/bin/sed
+rm=/bin/rm
+cat=/bin/cat
+rdiff_backup=/usr/local/rdiff-backup/bin/rdiff-backup
 
 all: backup.sh backuprc
 
 backup.sh: backup.sh.in
-	sed -e 's|@prefix@|${prefix}|g' < backup.sh.in > backup.sh
+	sed -e 's|@prefix@|${prefix}|g' \
+		-e 's|@sed@|${sed}|g' \
+		-e 's|@rm@|${rm}|g' \
+		-e 's|@cat@|${cat}|g' \
+		-e 's|@rdiff_backup@|${rdiff_backup}|g' < backup.sh.in > backup.sh
 
 backuprc: backuprc.in
 	sed -e 's|@prefix@|${prefix}|g' < backuprc.in > backuprc

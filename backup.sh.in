@@ -33,16 +33,20 @@ if [ ! -f "$config" ]; then
 	exit 1
 fi
 
-action="$1"
-shift
-
 # default values
 compress="no"
 verbose="5"
 
-. $config
+. "$config"
 
-rdiff_backup="/usr/local/rdiff-backup/bin/rdiff-backup"
+action="$1"
+shift
+
+#rdiff_backup="/usr/local/rdiff-backup/bin/rdiff-backup"
+rdiff_backup="@rdiff_backup@"
+sed="@sed@"
+rm="@rm@"
+cat="@cat@"
 
 #source="${sourceuser}@${sourcehost}::${sourcedir}"
 if [ -z "$sourcedir" ]; then
@@ -99,19 +103,19 @@ backup() {
 
 	if [ -f "$suite/exclude" ]; then
 		excludefile=$(mktemp -t exclude)
-		sed -e "s|^|$sourcedir/|" < "$suite/exclude" > "$excludefile"
+		"$sed" -e "s|^|$sourcedir/|" < "$suite/exclude" > "$excludefile"
 		exclude="--exclude-globbing-filelist $excludefile"
 	fi
 
 	if [ -f "$suite/include" ]; then
 		includefile=$(mktemp -t include)
-		sed -e "s|^|$sourcedir/|" < "$suite/include" > "$includefile"
+		"$sed" -e "s|^|$sourcedir/|" < "$suite/include" > "$includefile"
 		include="--include-globbing-filelist $includefile"
 	fi
 
 	"$rdiff_backup" "$compress" -v "$verbose" --backup-mode --carbonfile --exclude-special-files --exclude-other-filesystems $include $exclude $minsize $maxsize --print-statistics "$source" "$target"
 
-	rm -f "$excludefile" "$includefile"
+	"$rm" -f "$excludefile" "$includefile"
 }
 
 listinc() {
@@ -148,7 +152,7 @@ clean() {
 	time="$1"
 
 	if [ -z "$time" ]; then
-		time=$max_age
+		time="$max_age"
 	fi
 
 	if [ -z "$time" -a -z "$max_age" ]; then
@@ -186,18 +190,18 @@ config() {
 
 	if [ -f "$suite/exclude" ]; then
 		excludefile=$(mktemp -t exclude)
-		sed -e "s|^|$sourcedir/|" < "$suite/exclude" > "$excludefile"
+		"$sed" -e "s|^|$sourcedir/|" < "$suite/exclude" > "$excludefile"
 		echo "Exclude list:"
-		cat "$excludefile"
-		rm -f "$excludefile"
+		"$cat" "$excludefile"
+		"$rm" -f "$excludefile"
 	fi
 
 	if [ -f "$suite/include" ]; then
 		includefile=$(mktemp -t include)
-		sed -e "s|^|$sourcedir/|" < "$suite/include" > "$includefile"
+		"$sed" -e "s|^|$sourcedir/|" < "$suite/include" > "$includefile"
 		echo "Include list:"
-		cat "$includefile"
-		rm -f "$includefile"
+		"$cat" "$includefile"
+		"$rm" -f "$includefile"
 	fi
 }
 

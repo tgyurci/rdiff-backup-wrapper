@@ -1,4 +1,4 @@
-suite_dir="~/backup/lib"
+suitedir="~/backup/lib"
 sourcehost="srchost"
 sourceuser="srcuser"
 sourcedir="/source/dir"

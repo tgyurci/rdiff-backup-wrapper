@@ -17,8 +17,9 @@ backuprc: backuprc.in
 	sed -e 's|@prefix@|${prefix}|g' < backuprc.in > backuprc
 
 install: backup.sh backuprc
-	install -C -d -o root -g wheel -m 755 backup.sh ${prefix}/bin/backup
-	install -C -d -o root -g wheel -m 755 backuprc ${prefix}/etc/backuprc.sample
+	install -d -o root -g wheel -m 755 ${prefix}/bin ${prefix}/etc 
+	install -C -o root -g wheel -m 755 backup.sh ${prefix}/bin/backup
+	install -C -o root -g wheel -m 644 backuprc ${prefix}/etc/backuprc.sample
 
 clean:
 	rm -f backup.sh backuprc

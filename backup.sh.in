@@ -21,6 +21,8 @@ if [ -z "$suite" ]; then
 	exit 1
 fi
 
+suite="$suitedir/$suite"
+
 if [ ! -d "$suite" ]; then
 	echo "Nincs ilyen könyvtár: $suite"
 	exit 1

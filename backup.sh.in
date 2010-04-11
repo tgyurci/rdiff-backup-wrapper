@@ -176,6 +176,18 @@ restore() {
 	#"$rdiff_backup" "$compress" -v "$verbose" --restore-as-of "$time" "$target"
 }
 
+compare() {
+	time="$1"
+
+	if [ -z "$time" ]; then
+		time="now"
+	fi
+
+	path="$2"
+
+	"$rdiff_backup" "$compress" -v "$verbose" --compare-at-time "$time" "$source/$path" "$target/$path"
+}
+
 verify() {
 	time="$1"
 
@@ -240,6 +252,9 @@ case "$action" in
 	;;
 	restore)
 		restore $@
+	;;
+	compare)
+		compare $@
 	;;
 	verify)
 		verify $@

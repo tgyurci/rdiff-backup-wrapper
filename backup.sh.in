@@ -44,7 +44,6 @@ verbose="5"
 action="$1"
 shift
 
-#rdiff_backup="/usr/local/rdiff-backup/bin/rdiff-backup"
 rdiff_backup="@rdiff_backup@"
 sed="@sed@"
 rm="@rm@"

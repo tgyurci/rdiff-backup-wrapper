@@ -135,7 +135,9 @@ listat() {
 		exit 1
 	fi
 
-	"$rdiff_backup" "$compress" -v "$verbose" --list-at-time "$time" "$target"
+	path="$2"
+
+	"$rdiff_backup" "$compress" -v "$verbose" --list-at-time "$time" "$target/$path"
 }
 
 listchanged() {
@@ -146,7 +148,9 @@ listchanged() {
 		exit 1
 	fi
 
-	"$rdiff_backup" "$compress" -v "$verbose" --list-changed-since "$time" "$target"
+	path="$2"
+
+	"$rdiff_backup" "$compress" -v "$verbose" --list-changed-since "$time" "$target/$path"
 }
 
 clean() {
@@ -166,6 +170,7 @@ clean() {
 
 restore() {
 	time="$1"
+	path="$2"
 	#"$rdiff_backup" "$compress" -v "$verbose" --restore-as-of "$time" "$target"
 }
 
@@ -176,7 +181,9 @@ verify() {
 		time="now"
 	fi
 
-	"$rdiff_backup" "$compress" -v "$verbose" --verify-at-time "$time" "$target"
+	path="$2"
+
+	"$rdiff_backup" "$compress" -v "$verbose" --verify-at-time "$time" "$target/$path"
 }
 
 servertest() {

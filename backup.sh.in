@@ -4,6 +4,8 @@
 # backup.sh - rdiff-backup wrapper
 #
 
+version="rdiff-backup-wrapper 0.9"
+
 etcdir="@prefix@/etc"
 
 # load global config
@@ -213,6 +215,10 @@ config() {
 	fi
 }
 
+version() {
+	echo "$version"
+}
+
 case "$action" in
 	backup)
 		backup $@
@@ -243,6 +249,9 @@ case "$action" in
 	;;
 	config)
 		config $@
+	;;
+	version)
+		version $@
 	;;
 	*)
 		echo "Nincs ilyen action: $action"

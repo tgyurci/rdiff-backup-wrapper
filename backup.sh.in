@@ -4,7 +4,7 @@
 # backup.sh - rdiff-backup wrapper
 #
 
-version="rdiff-backup-wrapper 0.9"
+version="rdiff-backup-wrapper 0.9.1"
 
 etcdir="@prefix@/etc"
 
@@ -105,13 +105,13 @@ backup() {
 	echo "Backing up $suite using config $config"
 
 	if [ -f "$suite/exclude" ]; then
-		excludefile=$(mktemp -t exclude)
+		excludefile=$(mktemp -t rdiff-backup-exclude)
 		"$sed" -e "s|^|$sourcedir/|" < "$suite/exclude" > "$excludefile"
 		exclude="--exclude-globbing-filelist $excludefile"
 	fi
 
 	if [ -f "$suite/include" ]; then
-		includefile=$(mktemp -t include)
+		includefile=$(mktemp -t rdiff-backup-include)
 		"$sed" -e "s|^|$sourcedir/|" < "$suite/include" > "$includefile"
 		include="--include-globbing-filelist $includefile"
 	fi
@@ -185,7 +185,21 @@ compare() {
 
 	path="$2"
 
-	"$rdiff_backup" "$compress" -v "$verbose" --compare-at-time "$time" "$source/$path" "$target/$path"
+	if [ -f "$suite/exclude" ]; then
+		excludefile=$(mktemp -t rdiff-backup-exclude)
+		"$sed" -e "s|^|$sourcedir/|" < "$suite/exclude" > "$excludefile"
+		exclude="--exclude-globbing-filelist $excludefile"
+	fi
+
+	if [ -f "$suite/include" ]; then
+		includefile=$(mktemp -t rdiff-backup-include)
+		"$sed" -e "s|^|$sourcedir/|" < "$suite/include" > "$includefile"
+		include="--include-globbing-filelist $includefile"
+	fi
+
+	"$rdiff_backup" "$compress" -v "$verbose" $include $exclude --compare-at-time "$time" "$source/$path" "$target/$path"
+
+	"$rm" -f "$excludefile" "$includefile"
 }
 
 verify() {
@@ -211,7 +225,7 @@ config() {
 	echo "$rdiff_backup" "$compress" -v "$verbose" "$minsize" "$maxsize"
 
 	if [ -f "$suite/exclude" ]; then
-		excludefile=$(mktemp -t exclude)
+		excludefile=$(mktemp -t rdiff-backup-exclude)
 		"$sed" -e "s|^|$sourcedir/|" < "$suite/exclude" > "$excludefile"
 		echo "Exclude list:"
 		"$cat" "$excludefile"
@@ -219,7 +233,7 @@ config() {
 	fi
 
 	if [ -f "$suite/include" ]; then
-		includefile=$(mktemp -t include)
+		includefile=$(mktemp -t rdiff-backup-include)
 		"$sed" -e "s|^|$sourcedir/|" < "$suite/include" > "$includefile"
 		echo "Include list:"
 		"$cat" "$includefile"

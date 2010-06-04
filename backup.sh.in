@@ -4,7 +4,7 @@
 # backup.sh - rdiff-backup wrapper
 #
 
-version="rdiff-backup-wrapper 0.9.1"
+version="rdiff-backup-wrapper 0.9.2"
 
 etcdir="@prefix@/etc"
 
@@ -215,7 +215,13 @@ verify() {
 }
 
 servertest() {
-	"$rdiff_backup" "$compress" -v "$verbose" --test-server "$target"
+	if [ -n "$sourcehost" ]; then
+		"$rdiff_backup" "$compress" -v "$verbose" --test-server "$source"
+	fi 
+
+	if [ -n "$targethost" ]; then
+		"$rdiff_backup" "$compress" -v "$verbose" --test-server "$target"
+	fi 
 }
 
 config() {

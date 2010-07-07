@@ -4,7 +4,7 @@
 # backup.sh - rdiff-backup wrapper
 #
 
-version="rdiff-backup-wrapper 0.9.3"
+version="rdiff-backup-wrapper 0.9.4"
 
 etcdir="@prefix@/etc"
 
@@ -23,14 +23,14 @@ if [ -z "$suite" ]; then
 	exit 1
 fi
 
-suite="$suitedir/$suite"
+suitepath="$suitedir/$suite"
 
-if [ ! -d "$suite" ]; then
-	echo "Nincs ilyen könyvtár: $suite"
+if [ ! -d "$suitepath" ]; then
+	echo "Nincs ilyen könyvtár: $suitepath"
 	exit 1
 fi
 
-config="$suite/config"
+config="$suitepath/config"
 
 if [ ! -f "$config" ]; then
 	echo "Nincs config: $config"
@@ -104,15 +104,15 @@ fi
 backup() {
 	echo "Backing up $suite using config $config"
 
-	if [ -f "$suite/exclude" ]; then
+	if [ -f "$suitepath/exclude" ]; then
 		excludefile=$(mktemp -t rdiff-backup-exclude)
-		"$sed" -e "s|^|$sourcedir/|" < "$suite/exclude" > "$excludefile"
+		"$sed" -e "s|^|$sourcedir/|" < "$suitepath/exclude" > "$excludefile"
 		exclude="--exclude-globbing-filelist $excludefile"
 	fi
 
-	if [ -f "$suite/include" ]; then
+	if [ -f "$suitepath/include" ]; then
 		includefile=$(mktemp -t rdiff-backup-include)
-		"$sed" -e "s|^|$sourcedir/|" < "$suite/include" > "$includefile"
+		"$sed" -e "s|^|$sourcedir/|" < "$suitepath/include" > "$includefile"
 		include="--include-globbing-filelist $includefile"
 	fi
 
@@ -185,15 +185,15 @@ compare() {
 
 	path="$2"
 
-	if [ -f "$suite/exclude" ]; then
+	if [ -f "$suitepath/exclude" ]; then
 		excludefile=$(mktemp -t rdiff-backup-exclude)
-		"$sed" -e "s|^|$sourcedir/|" < "$suite/exclude" > "$excludefile"
+		"$sed" -e "s|^|$sourcedir/|" < "$suitepath/exclude" > "$excludefile"
 		exclude="--exclude-globbing-filelist $excludefile"
 	fi
 
-	if [ -f "$suite/include" ]; then
+	if [ -f "$suitepath/include" ]; then
 		includefile=$(mktemp -t rdiff-backup-include)
-		"$sed" -e "s|^|$sourcedir/|" < "$suite/include" > "$includefile"
+		"$sed" -e "s|^|$sourcedir/|" < "$suitepath/include" > "$includefile"
 		include="--include-globbing-filelist $includefile"
 	fi
 
@@ -230,17 +230,17 @@ config() {
 	echo "target: $target"
 	echo "$rdiff_backup" "$compress" -v "$verbose" "$minsize" "$maxsize"
 
-	if [ -f "$suite/exclude" ]; then
+	if [ -f "$suitepath/exclude" ]; then
 		excludefile=$(mktemp -t rdiff-backup-exclude)
-		"$sed" -e "s|^|$sourcedir/|" < "$suite/exclude" > "$excludefile"
+		"$sed" -e "s|^|$sourcedir/|" < "$suitepath/exclude" > "$excludefile"
 		echo "Exclude list:"
 		"$cat" "$excludefile"
 		"$rm" -f "$excludefile"
 	fi
 
-	if [ -f "$suite/include" ]; then
+	if [ -f "$suitepath/include" ]; then
 		includefile=$(mktemp -t rdiff-backup-include)
-		"$sed" -e "s|^|$sourcedir/|" < "$suite/include" > "$includefile"
+		"$sed" -e "s|^|$sourcedir/|" < "$suitepath/include" > "$includefile"
 		echo "Include list:"
 		"$cat" "$includefile"
 		"$rm" -f "$includefile"

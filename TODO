@@ -2,7 +2,7 @@
 * test source and target (DONE)
 * check if source/target is remote (host is present) (DONE)
 * print rdiff-backup version (-V) (DONE)
-* put carbonfile, exclude-special etc. in config
+* put carbonfile, exclude-special etc. in config (work in progress in extend-config branch)
 * convert functions to agument appending
 * use --terminal-verbosity
 * add cleanup mode (--check-destination-dir)

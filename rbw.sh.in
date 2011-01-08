@@ -4,7 +4,7 @@
 # rbw.sh - rdiff-backup wrapper
 #
 
-version="rdiff-backup-wrapper 0.9.4"
+version="rdiff-backup-wrapper 0.9.5"
 
 etcdir="@prefix@/etc"
 
@@ -14,18 +14,25 @@ fail() {
 }
 
 # load global config
-for backuprc in "$etcdir/backuprc" "$HOME/.backuprc"; do
-	if [ -f "$backuprc" ]; then
-		. "$backuprc"
+for rc in "$etcdir/rbwrc" "$HOME/.rbwrc" "./rbwrc"; do
+	if [ -f "$rc" ]; then
+		. "$rc"
 	fi
 done
 
-suite="$1"
+[ -n "$suitebase" ] || fail "Need a \$suitebase config option!"
+[ -z "$sourceuser" ] || fail "Global config defines \$sourceuser!"
+[ -z "$sourcehost" ] || fail "Global config defines \$sourcehost!"
+[ -z "$targetuser" ] || fail "Global config defines \$targetuser!"
+[ -z "$targethost" ] || fail "Global config defines \$targethost!"
+[ -z "$max_age" ] || fail "Global config defines \$max_age!"
+
+suitename="$1"
 shift
 
-[ -n "$suite" ] || fail "Need a suite name parameter!"
+[ -n "$suitename" ] || fail "Need a suite name parameter!"
 
-suitepath="$suitedir/$suite"
+suitepath="$suitebase/$suitename"
 
 [ -d "$suitepath" ] || fail "No such directory: \"$suitepath\"!"
 
@@ -48,10 +55,10 @@ rm="@rm@"
 cat="@cat@"
 
 #source="${sourceuser}@${sourcehost}::${sourcedir}"
-[ -d "$sourcedir" ] || fail "No sourcedir specified!"
+[ -d "$sourcedir" ] || fail "No \$sourcedir specified!"
 
 if [ -z "$sourcehost" -a -n "$sourceuser" ]; then
-	fail"No sourcehost specified but sourceuser is present!"
+	fail "No \$sourcehost specified but \$sourceuser is present!"
 fi
 
 source="$sourcedir"
@@ -59,10 +66,10 @@ source="$sourcedir"
 [ -n "$sourceuser" ] && source="${sourceuser}@${source}"
 
 #target="${targetuser}@${targethost}::${targetdir}"
-[ -d "$targetdir" ] || fail "No targetdir specified!"
+[ -d "$targetdir" ] || fail "No \$targetdir specified!"
 
 if [ -z "$targethost" -a -n "$targetuser" ]; then
-	fail "No targethost specified but targetuser is present!"
+	fail "No \$targethost specified but \$targetuser is present!"
 fi
 
 target="$targetdir"
@@ -92,13 +99,13 @@ backup() {
 	echo "Backing up $suite using config $config"
 
 	if [ -f "$suitepath/exclude" ]; then
-		excludefile=$(mktemp -t rdiff-backup-exclude)
+		excludefile="$(mktemp -t rdiff-backup-exclude)"
 		"$sed" -e "s|^|$sourcedir/|" < "$suitepath/exclude" > "$excludefile"
 		exclude="--exclude-globbing-filelist $excludefile"
 	fi
 
 	if [ -f "$suitepath/include" ]; then
-		includefile=$(mktemp -t rdiff-backup-include)
+		includefile="$(mktemp -t rdiff-backup-include)"
 		"$sed" -e "s|^|$sourcedir/|" < "$suitepath/include" > "$includefile"
 		include="--include-globbing-filelist $includefile"
 	fi
@@ -165,13 +172,13 @@ compare() {
 	path="$2"
 
 	if [ -f "$suitepath/exclude" ]; then
-		excludefile=$(mktemp -t rdiff-backup-exclude)
+		excludefile="$(mktemp -t rdiff-backup-exclude)"
 		"$sed" -e "s|^|$sourcedir/|" < "$suitepath/exclude" > "$excludefile"
 		exclude="--exclude-globbing-filelist $excludefile"
 	fi
 
 	if [ -f "$suitepath/include" ]; then
-		includefile=$(mktemp -t rdiff-backup-include)
+		includefile="$(mktemp -t rdiff-backup-include)"
 		"$sed" -e "s|^|$sourcedir/|" < "$suitepath/include" > "$includefile"
 		include="--include-globbing-filelist $includefile"
 	fi
@@ -210,7 +217,7 @@ config() {
 	echo "$rdiff_backup" "$compress" -v "$verbose" "$minsize" "$maxsize"
 
 	if [ -f "$suitepath/exclude" ]; then
-		excludefile=$(mktemp -t rdiff-backup-exclude)
+		excludefile="$(mktemp -t rdiff-backup-exclude)"
 		"$sed" -e "s|^|$sourcedir/|" < "$suitepath/exclude" > "$excludefile"
 		echo "Exclude list:"
 		"$cat" "$excludefile"
@@ -218,7 +225,7 @@ config() {
 	fi
 
 	if [ -f "$suitepath/include" ]; then
-		includefile=$(mktemp -t rdiff-backup-include)
+		includefile="$(mktemp -t rdiff-backup-include)"
 		"$sed" -e "s|^|$sourcedir/|" < "$suitepath/include" > "$includefile"
 		echo "Include list:"
 		"$cat" "$includefile"

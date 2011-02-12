@@ -4,7 +4,7 @@
 # rbw.sh - rdiff-backup wrapper
 #
 
-version="rdiff-backup-wrapper 0.9.5"
+version="rdiff-backup-wrapper 0.9.6"
 
 etcdir="@prefix@/etc"
 
@@ -12,6 +12,10 @@ fail() {
 	echo $@ >&2
 	exit 1
 }
+
+# default values
+compress="no"
+verbose="5"
 
 # load global config
 for rc in "$etcdir/rbwrc" "$HOME/.rbwrc" "./rbwrc"; do
@@ -39,10 +43,6 @@ suitepath="$suitebase/$suitename"
 config="$suitepath/config"
 
 [ -f "$config" ] || fail "No config file: \"$config\"!"
-
-# default values
-compress="no"
-verbose="5"
 
 . "$config"
 

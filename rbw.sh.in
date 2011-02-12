@@ -200,6 +200,10 @@ verify() {
 	"$rdiff_backup" "$compress" -v "$verbose" --verify-at-time "$time" "$target/$path"
 }
 
+cleanup() {
+	"$rdiff_backup" "$compress" -v "$verbose" --check-destination-dir "$target"
+}
+
 servertest() {
 	if [ -n "$sourcehost" ]; then
 		"$rdiff_backup" "$compress" -v "$verbose" --test-server "$source"
@@ -265,6 +269,9 @@ case "$action" in
 	;;
 	verify)
 		verify $@
+	;;
+	cleanup)
+		cleanup $@
 	;;
 	test)
 		servertest $@

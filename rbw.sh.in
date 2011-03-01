@@ -3,8 +3,17 @@
 #
 # rbw.sh - rdiff-backup wrapper
 #
+# ----------------------------------------------------------------------------
+# "THE BEER-WARE LICENSE" (Revision 42, (c) Poul-Henning Kamp):
+# TEUBEL György <tgyurci@freemail.hu> wrote this file. As long as you retain
+# this notice you can do whatever you want with this stuff. If we meet some day,
+# and you think this stuff is worth it, you can buy me a beer in return. 
+#
+# TEUBEL György
+# ----------------------------------------------------------------------------
+#
 
-version="rdiff-backup-wrapper 0.9.6"
+version="rdiff-backup-wrapper 0.9.6.1"
 
 etcdir="@prefix@/etc"
 
@@ -96,7 +105,7 @@ if [ -n "$max_size" ]; then
 fi
 
 backup() {
-	echo "Backing up $suite using config $config"
+	echo "Backing up $suitename using config $config"
 
 	if [ -f "$suitepath/exclude" ]; then
 		excludefile="$(mktemp -t rdiff-backup-exclude)"

@@ -13,7 +13,7 @@
 # ----------------------------------------------------------------------------
 #
 
-version="rdiff-backup-wrapper 0.9.6.1"
+version="rdiff-backup-wrapper 0.9.6.2"
 
 etcdir="@prefix@/etc"
 
@@ -64,7 +64,7 @@ rm="@rm@"
 cat="@cat@"
 
 #source="${sourceuser}@${sourcehost}::${sourcedir}"
-[ -d "$sourcedir" ] || fail "No \$sourcedir specified!"
+[ -n "$sourcedir" ] || fail "No \$sourcedir specified!"
 
 if [ -z "$sourcehost" -a -n "$sourceuser" ]; then
 	fail "No \$sourcehost specified but \$sourceuser is present!"
@@ -75,7 +75,7 @@ source="$sourcedir"
 [ -n "$sourceuser" ] && source="${sourceuser}@${source}"
 
 #target="${targetuser}@${targethost}::${targetdir}"
-[ -d "$targetdir" ] || fail "No \$targetdir specified!"
+[ -n "$targetdir" ] || fail "No \$targetdir specified!"
 
 if [ -z "$targethost" -a -n "$targetuser" ]; then
 	fail "No \$targethost specified but \$targetuser is present!"
@@ -136,7 +136,7 @@ listat() {
 	time="$1"
 	path="$2"
 
-	[ -n "$time" ] || fail "Kell idő paraméter!"
+	[ -n "$time" ] || fail "Need a time parameter!"
 
 	"$rdiff_backup" "$compress" -v "$verbose" --list-at-time "$time" "$target/$path"
 }
@@ -145,7 +145,7 @@ listchanged() {
 	time="$1"
 	path="$2"
 
-	[ -n "$time" ] || fail "Kell idő paraméter!"
+	[ -n "$time" ] || fail "Need a time parameter!"
 
 	"$rdiff_backup" "$compress" -v "$verbose" --list-changed-since "$time" "$target/$path"
 }
@@ -158,7 +158,7 @@ clean() {
 	fi
 
 	if [ -z "$time" -a -z "$max_age" ]; then
-		echo "Kell idő paraméter vagy a konfigba \$max_age!"
+		echo "Need a time parameter or \$max_age in config!"
 		exit 1
 	fi
 
@@ -292,6 +292,6 @@ case "$action" in
 		version $@
 	;;
 	*)
-		echo "Nincs ilyen action: $action"
+		echo "No such action: $action"
 		exit 1
 esac

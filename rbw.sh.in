@@ -13,7 +13,7 @@
 # ----------------------------------------------------------------------------
 #
 
-version="rdiff-backup-wrapper 0.9.7"
+version="rdiff-backup-wrapper 0.9.8"
 
 etcdir="@prefix@/etc"
 
@@ -116,8 +116,6 @@ fi
 backup() {
 	echo "Backing up $suitename using config $config"
 
-	run_command "$precmd"
-
 	if [ -f "$suitepath/exclude" ]; then
 		excludefile="$(mktemp -t rdiff-backup-exclude)"
 		"$sed" -e "s|^|$sourcedir/|" < "$suitepath/exclude" > "$excludefile"
@@ -130,49 +128,52 @@ backup() {
 		include="--include-globbing-filelist $includefile"
 	fi
 
+	run_command "$pre_source_cmd"
+	run_command "$pre_target_cmd"
+
 	"$rdiff_backup" "$compress" -v "$verbose" --backup-mode --carbonfile --exclude-special-files --exclude-other-filesystems $include $exclude $minsize $maxsize --print-statistics "$source" "$target"
 
-	"$rm" -f "$excludefile" "$includefile"
+	run_command "$post_source_cmd"
+	run_command "$post_target_cmd"
 
-	run_command "$postcmd"
+	"$rm" -f "$excludefile" "$includefile"
 }
 
 listinc() {
-	run_command "$precmd"
+	run_command "$pre_target_cmd"
 	"$rdiff_backup" "$compress" -v "$verbose" --list-increments "$target"
-	run_command "$postcmd"
+	run_command "$post_target_cmd"
 }
 
 listincsize() {
-	run_command "$precmd"
+	run_command "$pre_target_cmd"
 	"$rdiff_backup" "$compress" -v "$verbose" --list-increment-sizes "$target"
-	run_command "$postcmd"
+	run_command "$post_target_cmd"
 }
 
 listat() {
-	run_command "$precmd"
 	time="$1"
 	path="$2"
 
 	[ -n "$time" ] || fail "Need a time parameter!"
 
+	run_command "$pre_target_cmd"
 	"$rdiff_backup" "$compress" -v "$verbose" --list-at-time "$time" "$target/$path"
-	run_command "$postcmd"
+	run_command "$post_target_cmd"
 }
 
 listchanged() {
-	run_command "$precmd"
 	time="$1"
 	path="$2"
 
 	[ -n "$time" ] || fail "Need a time parameter!"
 
+	run_command "$pre_target_cmd"
 	"$rdiff_backup" "$compress" -v "$verbose" --list-changed-since "$time" "$target/$path"
-	run_command "$postcmd"
+	run_command "$post_target_cmd"
 }
 
 clean() {
-	run_command "$precmd"
 	time="$1"
 
 	if [ -z "$time" ]; then
@@ -184,20 +185,20 @@ clean() {
 		exit 1
 	fi
 
+	run_command "$pre_target_cmd"
 	"$rdiff_backup" "$compress" -v "$verbose" --force --remove-older-than "$time" "$target"
-	run_command "$postcmd"
+	run_command "$post_target_cmd"
 }
 
 restore() {
-	run_command "$precmd"
+	run_command "$pre_target_cmd"
 	time="$1"
 	path="$2"
 	#"$rdiff_backup" "$compress" -v "$verbose" --restore-as-of "$time" "$target"
-	run_command "$postcmd"
+	run_command "$post_target_cmd"
 }
 
 compare() {
-	run_command "$precmd"
 	time="$1"
 
 	if [ -z "$time" ]; then
@@ -218,14 +219,16 @@ compare() {
 		include="--include-globbing-filelist $includefile"
 	fi
 
+	run_command "$pre_source_cmd"
+	run_command "$pre_target_cmd"
 	"$rdiff_backup" "$compress" -v "$verbose" $include $exclude --compare-at-time "$time" "$source/$path" "$target/$path"
+	run_command "$post_source_cmd"
+	run_command "$post_target_cmd"
 
 	"$rm" -f "$excludefile" "$includefile"
-	run_command "$postcmd"
 }
 
 verify() {
-	run_command "$precmd"
 	time="$1"
 
 	if [ -z "$time" ]; then
@@ -234,26 +237,29 @@ verify() {
 
 	path="$2"
 
+	run_command "$pre_target_cmd"
 	"$rdiff_backup" "$compress" -v "$verbose" --verify-at-time "$time" "$target/$path"
-	run_command "$postcmd"
+	run_command "$post_target_cmd"
 }
 
 cleanup() {
-	run_command "$precmd"
+	run_command "$pre_target_cmd"
 	"$rdiff_backup" "$compress" -v "$verbose" --check-destination-dir "$target"
-	run_command "$postcmd"
+	run_command "$post_target_cmd"
 }
 
 servertest() {
-	run_command "$precmd"
 	if [ -n "$sourcehost" ]; then
+		run_command "$pre_source_cmd"
 		"$rdiff_backup" "$compress" -v "$verbose" --test-server "$source"
+		run_command "$post_source_cmd"
 	fi 
 
 	if [ -n "$targethost" ]; then
+		run_command "$pre_target_cmd"
 		"$rdiff_backup" "$compress" -v "$verbose" --test-server "$target"
+		run_command "$post_target_cmd"
 	fi 
-	run_command "$postcmd"
 }
 
 config() {

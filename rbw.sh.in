@@ -13,7 +13,7 @@
 # ----------------------------------------------------------------------------
 #
 
-version="rdiff-backup-wrapper 0.9.8"
+version="rdiff-backup-wrapper 1.0.0"
 
 etcdir="@prefix@/etc"
 
@@ -36,7 +36,7 @@ compress="no"
 verbose="5"
 
 # load global config
-for rc in "$etcdir/rbwrc" "$HOME/.rbwrc" "./rbwrc"; do
+for rc in "$etcdir/rbwrc" "$HOME/.rbwrc"; do
 	if [ -f "$rc" ]; then
 		. "$rc"
 	fi
@@ -47,7 +47,6 @@ done
 [ -z "$sourcehost" ] || fail "Global config defines \$sourcehost!"
 [ -z "$targetuser" ] || fail "Global config defines \$targetuser!"
 [ -z "$targethost" ] || fail "Global config defines \$targethost!"
-[ -z "$max_age" ] || fail "Global config defines \$max_age!"
 
 suitename="$1"
 shift
@@ -191,10 +190,11 @@ clean() {
 }
 
 restore() {
-	run_command "$pre_target_cmd"
 	time="$1"
-	path="$2"
-	#"$rdiff_backup" "$compress" -v "$verbose" --restore-as-of "$time" "$target"
+	restorable_path="$2"
+	dest_path="$3"
+	run_command "$pre_target_cmd"
+	"$rdiff_backup" "$compress" -v "$verbose" --restore-as-of "$time" "$target/$restorable_path" "$dest_path"
 	run_command "$post_target_cmd"
 }
 

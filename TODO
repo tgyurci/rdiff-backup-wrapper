@@ -1,4 +1,4 @@
-* restore
+* restore (DONE)
 * test source and target (DONE)
 * check if source/target is remote (host is present) (DONE)
 * print rdiff-backup version (-V) (DONE)

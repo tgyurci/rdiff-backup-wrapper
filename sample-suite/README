@@ -1,0 +1,3 @@
+This is a sample suite for rbw.
+A suite is a directory which must contain a "config" file, which is an sh-syntax name-value pairs.
+Optionally it can contain an "exclude" and and an "include" files.

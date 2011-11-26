@@ -18,12 +18,12 @@ version="rdiff-backup-wrapper 0.9.8"
 etcdir="@prefix@/etc"
 
 fail() {
-	echo $@ >&2
+	echo "$@" >&2
 	exit 1
 }
 
 run_command() {
-	cmd=$1
+	cmd="$1"
 	if [ -n "$cmd" ]; then
 		eval "$cmd" "$@"
 
@@ -292,45 +292,44 @@ version() {
 
 case "$action" in
 	backup)
-		backup $@
+		backup "$@"
 	;;
 	listinc)
-		listinc $@
+		listinc "$@"
 	;;
 	listincsize)
-		listincsize $@
+		listincsize "$@"
 	;;
 	listat)
-		listat $@
+		listat "$@"
 	;;
 	listchanged)
-		listchanged $@
+		listchanged "$@"
 	;;
 	clean)
-		clean $@
+		clean "$@"
 	;;
 	restore)
-		restore $@
+		restore "$@"
 	;;
 	compare)
-		compare $@
+		compare "$@"
 	;;
 	verify)
-		verify $@
+		verify "$@"
 	;;
 	cleanup)
-		cleanup $@
+		cleanup "$@"
 	;;
 	test)
-		servertest $@
+		servertest "$@"
 	;;
 	config)
-		config $@
+		config "$@"
 	;;
 	version)
-		version $@
+		version "$@"
 	;;
 	*)
-		echo "No such action: $action"
-		exit 1
+		fail "No such action: $action"
 esac

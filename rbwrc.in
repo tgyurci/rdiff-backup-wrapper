@@ -13,7 +13,11 @@ compress="NO"
 
 # Verbosity level. 
 # See --verbosity
-verbose="5"
+verbosity="5"
+
+# Terminal verbosity level
+# See --terminal-verbosity
+terminal_verbosity="5"
 
 # Minimum file size
 # See --min-file-size

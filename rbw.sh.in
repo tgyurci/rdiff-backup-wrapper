@@ -13,7 +13,7 @@
 # ----------------------------------------------------------------------------
 #
 
-version="rdiff-backup-wrapper 1.0.0"
+version="rdiff-backup-wrapper 1.0.1"
 
 etcdir="@prefix@/etc"
 
@@ -33,7 +33,6 @@ run_command() {
 
 # default values
 compress="no"
-verbose="5"
 
 # load global config
 for rc in "$etcdir/rbwrc" "$HOME/.rbwrc"; do
@@ -104,12 +103,20 @@ case "$compress" in
 		fail "compress: yes/no"
 esac
 
+if [ -n "$verbosity" ]; then
+	verbosity="--verbosity $verbosity"
+fi
+
+if [ -n "$terminal_verbosity" ]; then
+	terminal_verbosity="--terminal-verbosity $terminal_verbosity"
+fi
+
 if [ -n "$min_size" ]; then
-	minsize="--min-file-size $min_size"
+	min_size="--min-file-size $min_size"
 fi
 
 if [ -n "$max_size" ]; then
-	maxsize="--max-file-size $max_size"
+	max_size="--max-file-size $max_size"
 fi
 
 backup() {
@@ -130,7 +137,7 @@ backup() {
 	run_command "$pre_source_cmd"
 	run_command "$pre_target_cmd"
 
-	"$rdiff_backup" "$compress" -v "$verbose" --backup-mode --carbonfile --exclude-special-files --exclude-other-filesystems $include $exclude $minsize $maxsize --print-statistics "$source" "$target"
+	"$rdiff_backup" $compress $verbosity $terminal_verbosity --backup-mode --carbonfile --exclude-special-files --exclude-other-filesystems $include $exclude $min_size $max_size --print-statistics "$source" "$target"
 
 	run_command "$post_source_cmd"
 	run_command "$post_target_cmd"
@@ -140,13 +147,13 @@ backup() {
 
 listinc() {
 	run_command "$pre_target_cmd"
-	"$rdiff_backup" "$compress" -v "$verbose" --list-increments "$target"
+	"$rdiff_backup" $compress $verbosity $terminal_verbosity --list-increments "$target"
 	run_command "$post_target_cmd"
 }
 
 listincsize() {
 	run_command "$pre_target_cmd"
-	"$rdiff_backup" "$compress" -v "$verbose" --list-increment-sizes "$target"
+	"$rdiff_backup" $compress $verbosity $terminal_verbosity --list-increment-sizes "$target"
 	run_command "$post_target_cmd"
 }
 
@@ -157,7 +164,7 @@ listat() {
 	[ -n "$time" ] || fail "Need a time parameter!"
 
 	run_command "$pre_target_cmd"
-	"$rdiff_backup" "$compress" -v "$verbose" --list-at-time "$time" "$target/$path"
+	"$rdiff_backup" $compress $verbosity $terminal_verbosity --list-at-time "$time" "$target/$path"
 	run_command "$post_target_cmd"
 }
 
@@ -168,7 +175,7 @@ listchanged() {
 	[ -n "$time" ] || fail "Need a time parameter!"
 
 	run_command "$pre_target_cmd"
-	"$rdiff_backup" "$compress" -v "$verbose" --list-changed-since "$time" "$target/$path"
+	"$rdiff_backup" $compress $verbosity $terminal_verbosity --list-changed-since "$time" "$target/$path"
 	run_command "$post_target_cmd"
 }
 
@@ -185,7 +192,7 @@ clean() {
 	fi
 
 	run_command "$pre_target_cmd"
-	"$rdiff_backup" "$compress" -v "$verbose" --force --remove-older-than "$time" "$target"
+	"$rdiff_backup" $compress $verbosity $terminal_verbosity --force --remove-older-than "$time" "$target"
 	run_command "$post_target_cmd"
 }
 
@@ -194,7 +201,7 @@ restore() {
 	restorable_path="$2"
 	dest_path="$3"
 	run_command "$pre_target_cmd"
-	"$rdiff_backup" "$compress" -v "$verbose" --restore-as-of "$time" "$target/$restorable_path" "$dest_path"
+	"$rdiff_backup" $compress $verbosity $terminal_verbosity --restore-as-of "$time" "$target/$restorable_path" "$dest_path"
 	run_command "$post_target_cmd"
 }
 
@@ -221,7 +228,7 @@ compare() {
 
 	run_command "$pre_source_cmd"
 	run_command "$pre_target_cmd"
-	"$rdiff_backup" "$compress" -v "$verbose" $include $exclude --compare-at-time "$time" "$source/$path" "$target/$path"
+	"$rdiff_backup" $compress $verbosity $terminal_verbosity $include $exclude --compare-at-time "$time" "$source/$path" "$target/$path"
 	run_command "$post_source_cmd"
 	run_command "$post_target_cmd"
 
@@ -238,26 +245,26 @@ verify() {
 	path="$2"
 
 	run_command "$pre_target_cmd"
-	"$rdiff_backup" "$compress" -v "$verbose" --verify-at-time "$time" "$target/$path"
+	"$rdiff_backup" $compress $verbosity $terminal_verbosity --verify-at-time "$time" "$target/$path"
 	run_command "$post_target_cmd"
 }
 
 cleanup() {
 	run_command "$pre_target_cmd"
-	"$rdiff_backup" "$compress" -v "$verbose" --check-destination-dir "$target"
+	"$rdiff_backup" $compress $verbosity $terminal_verbosity --check-destination-dir "$target"
 	run_command "$post_target_cmd"
 }
 
 servertest() {
 	if [ -n "$sourcehost" ]; then
 		run_command "$pre_source_cmd"
-		"$rdiff_backup" "$compress" -v "$verbose" --test-server "$source"
+		"$rdiff_backup" $compress $verbosity $terminal_verbosity --test-server "$source"
 		run_command "$post_source_cmd"
 	fi 
 
 	if [ -n "$targethost" ]; then
 		run_command "$pre_target_cmd"
-		"$rdiff_backup" "$compress" -v "$verbose" --test-server "$target"
+		"$rdiff_backup" $compress $verbosity $terminal_verbosity --test-server "$target"
 		run_command "$post_target_cmd"
 	fi 
 }
@@ -266,7 +273,7 @@ config() {
 	echo "Backup configuration:"
 	echo "source: $source"
 	echo "target: $target"
-	echo "$rdiff_backup" "$compress" -v "$verbose" "$minsize" "$maxsize"
+	echo "$rdiff_backup" $compress $verbosity $terminal_verbosity "$min_size" "$max_size"
 
 	if [ -f "$suitepath/exclude" ]; then
 		excludefile="$(mktemp -t rdiff-backup-exclude)"
